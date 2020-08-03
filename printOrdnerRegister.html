@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Printing an A4 register</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+        
+    
+
+var contents = [
+    "VR-Bank Buxtehude\nIBAN DE22 3404 3048 3444 3484 33",
+    "Rabo Direkt\nIBAN DE29 6721 5412 2201 3484 55",
+    "Sparkasse\nIBAN DE55 7335 0055 1111 6987 65",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+];
+
+// Default export is a4 paper, portrait, using millimeters for units
+var doc = new jsPDF();
+var tabs = contents.length;
+
+var width = doc.internal.pageSize.width;
+var height = doc.internal.pageSize.height;
+var part = height / tabs;
+var left = width  * 3/10;
+
+doc.line(left - 2, 0, left - 2, height);
+doc.line(left, 0, left, height);
+
+for (var i = 1; i<tabs; i++ ) {
+	doc.line(left, i*part, width, i*part);
+}
+
+doc.setFontSize(30);
+for (var i = 0; i<tabs; i++) {
+	doc.text(""+(i+1), left+10, i*part+10);
+}
+doc.setFontSize(16);
+for (var i = 0; i<tabs; i++) {
+	doc.text(contents[i % contents.length], left+25, i*part+10);
+}
+
+
+doc.save('a4.pdf');
+</script>
+<div>a4.pdf printed</div>
+</body>
+</html>
