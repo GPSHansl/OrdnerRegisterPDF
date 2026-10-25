@@ -24,6 +24,8 @@ A fully **offline-capable**, single-file web app for creating printable folder r
 
 ## Usage
 
+**Direkt online nutzen:** [Im Browser öffnen](https://htmlpreview.github.io/?https://github.com/GPSHansl/OrdnerRegisterPDF/blob/develop/printOrdnerRegister.html)
+
 1. Download [`printOrdnerRegister.html`](printOrdnerRegister.html)
 2. Open it in any modern browser (Chrome, Firefox, Edge, Safari)
 3. Done — no setup required
