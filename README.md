@@ -9,14 +9,14 @@ A fully **offline-capable**, single-file web app for creating printable folder r
 ## Features
 
 - **Multiple registers** — manage any number of named folder registers, switch via dropdown
-- **Rich text editor** — bold, italic, underline, adjustable font size per text selection
+- **Inline text fields** — each register slot has its own input field on the main screen
 - **All common page formats** — A0–A6, Letter, Legal, Tabloid in portrait or landscape
 - **2–31 register slots** per sheet, freely configurable
 - **Live preview sidebar** — SVG preview always visible on the right, updates instantly
 - **Print directly** — prints the SVG without a popup window
 - **Download as SVG** — vector output ready for any PDF printer
 - **Export / Import JSON** — save individual registers with their name; on import, choose to overwrite or create a new copy
-- **Drag-free reordering** — move register slots up/down or to top/bottom with one click
+- **Drag & drop reordering** — reorder register slots by dragging the handle
 - **Persistent state** — all data is saved in `localStorage`; survives page reloads
 - **100% offline** — one self-contained `.html` file, no CDN, no network required
 
@@ -29,21 +29,6 @@ A fully **offline-capable**, single-file web app for creating printable folder r
 1. Download [`printOrdnerRegister.html`](printOrdnerRegister.html)
 2. Open it in any modern browser (Chrome, Firefox, Edge, Safari)
 3. Done — no setup required
-
----
-
-## Editor
-
-| Button | Shortcut | Action |
-|--------|----------|--------|
-| **Bold** | `Ctrl+B` | Toggle bold on selection |
-| *Italic* | `Ctrl+I` | Toggle italic on selection |
-| <u>Underline</u> | `Ctrl+U` | Toggle underline on selection |
-| **A−** | — | Decrease font size by 2 px |
-| **A** | — | Reset font size to default (14 px) |
-| **A+** | — | Increase font size by 2 px |
-
-> Font size changes affect the selected text only. Each text segment stores exactly one font size — no accumulated nesting.
 
 ---
 
@@ -106,7 +91,6 @@ Open ⚙️ to configure per register:
 |---|---|
 | Language | Vanilla JavaScript (ES2020) |
 | Styling | Inline CSS with CSS custom properties |
-| Editor | Native `contenteditable` with `document.execCommand` |
 | Output | Inline SVG with `<foreignObject>` for rich HTML content |
 | Storage | `localStorage` (JSON) |
 | Dependencies | **None** |

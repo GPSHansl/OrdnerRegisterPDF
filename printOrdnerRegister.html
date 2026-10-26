@@ -289,55 +289,6 @@
             flex-shrink: 0;
         }
 
-        /* ===== EDITOR ===== */
-        .editor-toolbar {
-            display: flex;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background-color: #f3f4f6;
-            border: 1px solid #e5e7eb;
-            border-radius: var(--radius);
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .editor-toolbar-btn {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.875rem;
-            background-color: #fff;
-            border: 1px solid var(--color-border);
-            color: #374151;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .editor-toolbar-btn:hover { background-color: #e5e7eb; }
-        .editor-toolbar-btn.active {
-            background-color: #dbeafe;
-            border-color: var(--color-primary);
-            color: var(--color-primary);
-        }
-        .editor-field {
-            width: 100%;
-            min-height: 300px;
-            padding: 0.75rem;
-            border: 1px solid #e5e7eb;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            line-height: 1.4;
-            overflow-y: auto;
-            font-family: inherit;
-        }
-        .editor-field:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .editor-info {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 1rem;
-        }
-
         /* ===== REGISTER SELECTOR ===== */
         .register-selector {
             display: flex;
@@ -498,17 +449,41 @@
             gap: 0.25rem;
             flex-shrink: 0;
         }
-        .content-list-item-edit-btn {
-            padding: 0.25rem;
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            color: #1d4ed8;
-            border-radius: var(--radius);
-            font-size: 1.125rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .content-list-item-handle {
+            flex-shrink: 0;
+            cursor: grab;
+            color: #9ca3af;
+            font-size: 1.25rem;
+            user-select: none;
+            padding: 0 0.25rem;
         }
-        .content-list-item-edit-btn:hover { background-color: #dbeafe; }
+        .content-list-item.dragging { opacity: 0.4; }
+        .content-list-item.drag-over { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3); }
+        .content-list-item-input {
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.5rem 0.75rem;
+        }
+        .content-list-item-lines { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.375rem; }
+        .content-list-item-line { display: flex; gap: 0.5rem; }
+        .line-style-row { position: relative; display: flex; align-items: center; gap: 0.375rem; padding: 1rem 0.5rem 0.5rem; border-radius: var(--radius); background-color: #fff; }
+        .line-style-row:nth-child(odd) { background-color: #f3f4f6; }
+        .line-style-label { position: absolute; top: 0.125rem; right: 0.5rem; font-size: 0.65rem; color: #6b7280; }
+        .line-style-row select { width: 7rem; height: 2rem; flex-shrink: 0; padding: 0 0.375rem; font-size: 0.8rem; }
+        .line-style-row input[type="number"] { width: 3.5rem; height: 2rem; padding: 0 0.375rem; font-size: 0.8rem; }
+        .line-style-row label { font-size: 0.875rem; white-space: nowrap; }
+        .toggle-btn {
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            font-size: 0.8rem;
+            line-height: 1;
+            flex-shrink: 0;
+            background-color: #f3f4f6;
+            border: 1px solid var(--color-border);
+            color: #374151;
+        }
+        .toggle-btn.active { background-color: #dbeafe; border-color: var(--color-primary); color: var(--color-primary); }
         .content-list-item-content {
             flex: 1;
             min-width: 0;
@@ -549,6 +524,7 @@
         .space-y-3 { display: flex; flex-direction: column; }
         .space-y-4 { display: flex; flex-direction: column; gap: 1rem; }
         .space-y-3 > * + * { margin-top: 0.75rem; }
+        #lineStylesContainer > * + * { margin-top: 0; }
 
         /* Gradients */
         .bg-gradient-to-br { background-image: linear-gradient(135deg, var(--tw-gradient-stops)); }
@@ -595,18 +571,13 @@
                         <!-- Options will be populated by JS -->
                     </select>
                     <div class="register-selector-controls">
-                        <button onclick="app.renameRegister()" class="register-selector-btn" title="Umbenennen">✏️</button>
+                        <button onclick="app.openSettingsModal()" class="register-selector-btn" title="Ordner-Einstellungen">⚙️</button>
                         <button onclick="app.createRegister()" class="register-selector-btn" title="Neu">➕</button>
                         <button onclick="app.deleteRegister()" class="register-selector-btn danger" title="Löschen">🗑️</button>
                     </div>
                 </div>
                 
                 <div class="app-header-toolbar">
-                    <button onclick="app.openSettingsModal()"
-                        class="button-icon"
-                        title="Einstellungen">
-                        ⚙️
-                    </button>
                     <button onclick="app.exportJSON()"
                         class="button-success button-sm"
                         title="Export">
@@ -653,71 +624,23 @@
         </main>
     </div>
 
-    <!-- Rename Register Modal -->
-    <div id="renameModal" class="modal-overlay z-50 hidden">
-        <div class="modal-backdrop"></div>
-        <div class="modal-box narrow">
-            <div class="modal-header">
-                <h2 class="modal-header-title">Ordner umbenennen</h2>
-                <button onclick="app.closeRenameModal()" class="modal-close-btn">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <div>
-                    <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Neuer Name:</label>
-                    <input type="text" id="renameInput" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: var(--radius); font-size: 0.875rem; outline: none; transition: all 0.2s ease;" placeholder="z.B. Kunden, Projekte, Archiv" onfocus="this.style.borderColor = 'var(--color-primary)'; this.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';" onblur="this.style.borderColor = '#d1d5db'; this.style.boxShadow = 'none';">
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button onclick="app.closeRenameModal()" class="button-secondary button-sm">Abbrechen</button>
-                <button onclick="app.saveRegisterName()" class="button-primary button-sm">Speichern</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal-overlay z-50 hidden">
-        <div class="modal-backdrop"></div>
-        <div class="modal-box narrow">
-            <div class="modal-header">
-                <h2 class="modal-header-title">Register <span id="modalRegisterIndex"></span> bearbeiten</h2>
-                <button onclick="app.closeEditModal()" class="modal-close-btn">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Editor Toolbar -->
-                <div class="editor-toolbar">
-                    <button type="button" onclick="app.toggleBold()" class="editor-toolbar-btn" title="Fett (Ctrl+B)">**Bold**</button>
-                    <button type="button" onclick="app.toggleItalic()" class="editor-toolbar-btn" title="Kursiv (Ctrl+I)"><em>Italic</em></button>
-                    <button type="button" onclick="app.toggleUnderline()" class="editor-toolbar-btn" title="Unterstrichen (Ctrl+U)"><u>Underline</u></button>
-                    <button type="button" onclick="app.decreaseSize()" class="editor-toolbar-btn" title="Kleiner (Auswahl)">A−</button>
-                    <button type="button" onclick="app.resetSize()"    class="editor-toolbar-btn" title="Schriftgröße zurücksetzen (Auswahl)">A</button>
-                    <button type="button" onclick="app.increaseSize()" class="editor-toolbar-btn" title="Größer (Auswahl)">A+</button>
-                </div>
-                <!-- ContentEditable Editor -->
-                <div id="contentEditor" contenteditable="true" class="editor-field"></div>
-                <!-- Toolbar Info -->
-                <p class="editor-info">Verwenden Sie die Werkzeugleiste oben, um Text zu formatieren: Fett, Kursiv, Größer/Kleiner.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button onclick="app.closeEditModal()" class="button-secondary button-sm">Abbrechen</button>
-                <button onclick="app.saveEditModal()" class="button-primary button-sm">Speichern</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal-overlay z-50 hidden">
         <div class="modal-backdrop"></div>
         <div class="modal-box narrow">
             <div class="modal-header">
-                <h2 class="modal-header-title">Einstellungen</h2>
+                <h2 class="modal-header-title">Ordner-Einstellungen</h2>
                 <button onclick="app.closeSettingsModal()" class="modal-close-btn">✕</button>
             </div>
 
             <div class="modal-body space-y-4">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                    <input type="text" id="registerNameInput" oninput="app.handleNameChange()" placeholder="z.B. Kunden, Projekte, Archiv"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
                 <!-- Page Format -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Format</label>
@@ -753,10 +676,38 @@
                         onchange="app.handleRegisterCountChange()"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+
+                <!-- Lines per Register -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Zeilen pro Register (1-3)</label>
+                    <input type="number" id="lineCountInput" min="1" max="3" value="1"
+                        onchange="app.handleLineCountChange()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Line Styles -->
+                <div id="lineStylesContainer" class="space-y-3"></div>
             </div>
 
             <div class="modal-footer">
                 <button onclick="app.closeSettingsModal()" class="button-secondary button-sm">Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="dialogModal" class="modal-overlay z-50 hidden">
+        <div class="modal-backdrop" onclick="app.closeDialog(false)"></div>
+        <div class="modal-box narrow" style="max-width: 24rem;">
+            <div class="modal-header">
+                <h2 class="modal-header-title" id="dialogTitle"></h2>
+            </div>
+            <div class="modal-body">
+                <p id="dialogMessage" style="color: #374151; line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="dialogCancel" onclick="app.closeDialog(false)" class="button-secondary button-sm">Abbrechen</button>
+                <button id="dialogOk" onclick="app.closeDialog(true)" class="button-danger button-sm"></button>
             </div>
         </div>
     </div>
@@ -789,6 +740,9 @@
         // Application State & Configuration
         // ============================================================================
 
+        const MAX_LINES = 3;
+        const FONTS = ['', 'Arial', 'Verdana', 'Georgia', 'Times New Roman', 'Courier New', 'Comic Sans MS', 'Impact'];
+
         const PAGE_FORMATS = {
             'A0': { width: 841, height: 1189 },
             'A1': { width: 594, height: 841 },
@@ -806,7 +760,7 @@
             // State
             registers: [],  // Array of { id, name, registerCount, pageFormat, pageOrientation, contents }
             currentRegisterIndex: 0,  // Index of active register
-            currentEditIndex: null,
+            dragIndex: null,
 
             // Initialize
             init() {
@@ -816,7 +770,6 @@
                 }
                 this.renderRegisterSelector();
                 this.renderContentsList();
-                this.initQuillEditor();
                 this.attachEventListeners();
             },
 
@@ -854,6 +807,7 @@
                             this.registers = [];
                         }
                         
+                        this.registers.forEach(r => this.ensureLineSettings(r));
                         this.currentRegisterIndex = 0;
                     } catch (e) {
                         console.error('Failed to load state:', e);
@@ -871,6 +825,9 @@
             updateUIFromState() {
                 const register = this.getCurrentRegister();
                 if (register) {
+                    document.getElementById('registerNameInput').value = register.name;
+                    document.getElementById('lineCountInput').value = register.lineCount;
+                    this.renderLineStyles();
                     document.getElementById('registerCountInput').value = register.registerCount;
                     document.getElementById('pageFormatSelect').value = register.pageFormat;
                     document.getElementById('orientationSelect').value = register.pageOrientation;
@@ -878,6 +835,7 @@
             },
 
             initializeContents(register) {
+                this.ensureLineSettings(register);
                 while (register.contents.length < 31) {
                     register.contents.push('');
                 }
@@ -916,6 +874,7 @@
                     id: Date.now().toString(),
                     name: newName,
                     registerCount: 10,
+                    lineCount: 1,
                     pageFormat: 'A4',
                     pageOrientation: 'portrait',
                     contents: []
@@ -929,41 +888,24 @@
                 this.renderContentsList();
             },
 
-            renameRegister() {
-                const register = this.getCurrentRegister();
-                if (!register) return;
-
-                document.getElementById('renameInput').value = register.name;
-                document.getElementById('renameModal').classList.remove('hidden');
-                document.getElementById('renameInput').focus();
-            },
-
-            closeRenameModal() {
-                document.getElementById('renameModal').classList.add('hidden');
-            },
-
-            saveRegisterName() {
-                const newName = document.getElementById('renameInput').value.trim();
-                if (!newName) {
-                    alert('Name darf nicht leer sein!');
-                    return;
-                }
-
-                const register = this.getCurrentRegister();
-                register.name = newName;
-                this.saveState();
-                this.renderRegisterSelector();
-                this.closeRenameModal();
-            },
-
-            deleteRegister() {
+            async deleteRegister() {
                 if (this.registers.length <= 1) {
-                    alert('Es muss mindestens ein Ordner-Register vorhanden sein!');
+                    await this.showDialog({
+                        title: 'Löschen nicht möglich',
+                        message: 'Es muss mindestens ein Ordner-Register vorhanden sein.',
+                        okLabel: 'OK',
+                        infoOnly: true
+                    });
                     return;
                 }
 
                 const register = this.getCurrentRegister();
-                if (confirm(`Wirklich den Ordner "${register.name}" löschen?`)) {
+                const confirmed = await this.showDialog({
+                    title: 'Ordner löschen',
+                    message: `Soll der Ordner "${register.name}" wirklich gelöscht werden? Das kann nicht rückgängig gemacht werden.`,
+                    okLabel: '🗑️ Löschen'
+                });
+                if (confirmed) {
                     this.registers.splice(this.currentRegisterIndex, 1);
                     if (this.currentRegisterIndex >= this.registers.length) {
                         this.currentRegisterIndex = this.registers.length - 1;
@@ -972,6 +914,29 @@
                     this.renderRegisterSelector();
                     this.updateUIFromState();
                     this.renderContentsList();
+                }
+            },
+
+            // Ersetzt confirm()/alert(); liefert true bei Bestätigung.
+            showDialog({ title, message, okLabel, cancelLabel = 'Abbrechen', infoOnly = false, danger = true }) {
+                document.getElementById('dialogTitle').textContent = title;
+                document.getElementById('dialogMessage').textContent = message;
+                const ok = document.getElementById('dialogOk');
+                ok.textContent = okLabel;
+                ok.className = (infoOnly || !danger ? 'button-primary' : 'button-danger') + ' button-sm';
+                const cancel = document.getElementById('dialogCancel');
+                cancel.textContent = cancelLabel;
+                cancel.classList.toggle('hidden', infoOnly);
+                document.getElementById('dialogModal').classList.remove('hidden');
+                ok.focus();
+                return new Promise((resolve) => { this._dialogResolve = resolve; });
+            },
+
+            closeDialog(result) {
+                document.getElementById('dialogModal').classList.add('hidden');
+                if (this._dialogResolve) {
+                    this._dialogResolve(result);
+                    this._dialogResolve = null;
                 }
             },
 
@@ -985,6 +950,112 @@
                 register.pageOrientation = document.getElementById('orientationSelect').value;
                 this.saveState();
                 this.renderContentsList();
+            },
+
+            handleNameChange() {
+                const newName = document.getElementById('registerNameInput').value.trim();
+                if (!newName) return;
+                this.getCurrentRegister().name = newName;
+                this.saveState();
+                this.renderRegisterSelector();
+            },
+
+            handleLineCountChange() {
+                const register = this.getCurrentRegister();
+                const newCount = parseInt(document.getElementById('lineCountInput').value);
+                if (newCount >= 1 && newCount <= MAX_LINES) {
+                    register.lineCount = newCount;
+                    this.saveState();
+                    this.renderLineStyles();
+                    this.renderContentsList();
+                }
+            },
+
+            ensureLineSettings(register) {
+                register.lineCount = Math.min(MAX_LINES, Math.max(1, register.lineCount || 1));
+                register.lineStyles = Array.from({ length: MAX_LINES }, (_, i) => ({
+                    font: '', bold: i === 0, italic: false, underline: false, size: i === 0 ? 23 : 14, ...(register.lineStyles && register.lineStyles[i])
+                }));
+            },
+
+            renderLineStyles() {
+                const register = this.getCurrentRegister();
+                const box = document.getElementById('lineStylesContainer');
+                box.innerHTML = '';
+                const update = () => { this.saveState(); this.renderContentsList(); };
+
+                for (let i = 0; i < register.lineCount; i++) {
+                    const st = register.lineStyles[i];
+                    const row = document.createElement('div');
+                    row.className = 'line-style-row';
+
+                    const title = document.createElement('span');
+                    title.className = 'line-style-label';
+                    title.textContent = `Zeile ${i + 1}`;
+
+                    const font = document.createElement('select');
+                    font.title = 'Schriftart';
+                    FONTS.forEach((f) => {
+                        const opt = document.createElement('option');
+                        opt.value = f;
+                        opt.textContent = f || 'Standard';
+                        font.appendChild(opt);
+                    });
+                    font.value = st.font;
+                    const refreshLook = () => {
+                        this.applyLook(font, st, st.font);
+                        Array.from(font.options).forEach(o => this.applyLook(o, st, o.value));
+                    };
+                    refreshLook();
+                    font.addEventListener('change', () => { st.font = font.value; refreshLook(); update(); });
+
+                    const size = document.createElement('input');
+                    size.type = 'number';
+                    size.min = 6;
+                    size.max = 72;
+                    size.value = st.size;
+                    size.title = 'Schriftgröße';
+                    size.addEventListener('change', () => {
+                        const v = parseInt(size.value);
+                        if (v >= 6 && v <= 72) { st.size = v; update(); }
+                    });
+
+                    const mkToggle = (symbol, title, key) => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'toggle-btn' + (st[key] ? ' active' : '');
+                        btn.textContent = symbol;
+                        btn.title = title;
+                        btn.addEventListener('click', () => {
+                            st[key] = !st[key];
+                            btn.classList.toggle('active', st[key]);
+                            refreshLook();
+                            update();
+                        });
+                        return btn;
+                    };
+
+                    row.append(title, font, size,
+                        mkToggle('𝐁', 'Fett', 'bold'),
+                        mkToggle('𝐼', 'Kursiv', 'italic'),
+                        mkToggle('U̲', 'Unterstrichen', 'underline'));
+                    box.appendChild(row);
+                }
+            },
+
+            applyLook(el, st, fontFamily) {
+                el.style.fontFamily = fontFamily;
+                el.style.fontWeight = st.bold ? 'bold' : 'normal';
+                el.style.fontStyle = st.italic ? 'italic' : 'normal';
+                el.style.textDecoration = st.underline ? 'underline' : 'none';
+            },
+
+            lineCss(st) {
+                // Die ViewBox ist in mm; 1 pt = 25.4/72 mm.
+                const sizeMm = (st.size * 25.4 / 72).toFixed(3);
+                return `white-space:nowrap;font-family:${st.font ? `'${st.font}'` : 'inherit'};font-size:${sizeMm}px;` +
+                    `font-weight:${st.bold ? 'bold' : 'normal'};font-style:${st.italic ? 'italic' : 'normal'};` +
+                    `text-decoration:${st.underline ? 'underline' : 'none'}`;
             },
 
             handleRegisterCountChange() {
@@ -1029,180 +1100,110 @@
                 div.className = 'content-list-item';
 
                 const register = this.getCurrentRegister();
-                const content = register.contents[index];
-                const preview = content.replace(/<[^>]*>/g, '').substring(0, 100) || '(leer)';
 
-                const canUp   = index > 0;
-                const canDown = index < register.registerCount - 1;
+                const handle = document.createElement('span');
+                handle.className = 'content-list-item-handle';
+                handle.title = 'Zum Umsortieren ziehen';
+                handle.textContent = '⠇';
+                handle.addEventListener('mousedown', () => { div.draggable = true; });
+                handle.addEventListener('mouseup', () => { div.draggable = false; });
 
-                div.innerHTML = `
-                    <div class="content-list-item-wrapper">
-                        <div class="content-list-item-badge">${index + 1}</div>
-                        <div class="content-list-item-actions">
-                            <button onclick="app.openEditModal(${index})" class="content-list-item-edit-btn" title="Bearbeiten">✏️</button>
-                        </div>
-                        <div class="content-list-item-content">
-                            <div class="content-list-item-preview">${this.htmlToPreview(preview)}</div>
-                        </div>
-                    </div>
-                    <!-- Reordering Controls: 2×2 Grid -->
-                    <div class="content-list-item-controls">
-                        <button onclick="app.moveUp(${index})"       class="content-list-item-control-btn" title="Nach oben"       ${canUp   ? '' : 'disabled'}>▲</button>
-                        <button onclick="app.moveToTop(${index})"    class="content-list-item-control-btn" title="Ganz nach oben"  ${canUp   ? '' : 'disabled'}>▲▲</button>
-                        <button onclick="app.moveDown(${index})"     class="content-list-item-control-btn" title="Nach unten"      ${canDown ? '' : 'disabled'}>▼</button>
-                        <button onclick="app.moveToBottom(${index})" class="content-list-item-control-btn" title="Ganz nach unten" ${canDown ? '' : 'disabled'}>▼▼</button>
-                    </div>
-                `;
+                const badge = document.createElement('div');
+                badge.className = 'content-list-item-badge';
+                badge.textContent = index + 1;
+
+                const lines = this.parseLines(register.contents[index], register.lineCount);
+                const save = () => {
+                    register.contents[index] = this.buildLines(lines);
+                    this.saveState();
+                    this.renderSidebarPreview();
+                };
+
+                const linesBox = document.createElement('div');
+                linesBox.className = 'content-list-item-lines';
+                lines.forEach((line, lineIndex) => {
+                    const row = document.createElement('div');
+                    row.className = 'content-list-item-line';
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'content-list-item-input';
+                    input.placeholder = '(leer)';
+                    input.value = line.text;
+                    const st = register.lineStyles[lineIndex];
+                    this.applyLook(input, st, st.font);
+                    input.addEventListener('input', () => { line.text = input.value; save(); });
+
+                    row.appendChild(input);
+                    linesBox.appendChild(row);
+                });
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'content-list-item-wrapper';
+                wrapper.append(handle, badge, linesBox);
+                div.appendChild(wrapper);
+
+                div.addEventListener('dragstart', (e) => {
+                    this.dragIndex = index;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', String(index));
+                    div.classList.add('dragging');
+                });
+                div.addEventListener('dragend', () => {
+                    div.draggable = false;
+                    this.dragIndex = null;
+                    this.renderContentsList();
+                });
+                div.addEventListener('dragover', (e) => {
+                    if (this.dragIndex === null) return;
+                    e.preventDefault();
+                    div.classList.add('drag-over');
+                });
+                div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+                div.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (this.dragIndex !== null) this.moveItem(this.dragIndex, index);
+                });
 
                 return div;
             },
 
-            htmlToPreview(text) {
-                return text.split('\n').slice(0, 2).join(' â†’ ') || '(leer)';
+            escapeHtml(text) {
+                return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            },
+
+            htmlToText(html) {
+                const doc = new DOMParser().parseFromString(html || '', 'text/html');
+                return doc.body.textContent;
+            },
+
+            // Slot-Inhalt: ein <div> pro Zeile; Altdaten ohne <div> gelten als eine Zeile.
+            parseLines(html, count) {
+                const body = new DOMParser().parseFromString(html || '', 'text/html').body;
+                const divs = Array.from(body.children).filter(el => el.tagName === 'DIV');
+                const lines = divs.length
+                    ? divs.map(d => ({ text: d.textContent }))
+                    : [{ text: body.textContent }];
+                while (lines.length < count) lines.push({ text: '' });
+                return lines.slice(0, count);
+            },
+
+            buildLines(lines) {
+                if (lines.every(l => !l.text)) return '';
+                return lines.map(l => `<div>${this.escapeHtml(l.text)}</div>`).join('');
             },
 
             // ========================================================================
-            // Reordering
+            // Reordering (Drag & Drop)
             // ========================================================================
 
-            moveUp(index) {
+            moveItem(from, to) {
+                if (from === to) return;
                 const register = this.getCurrentRegister();
-                if (index > 0) {
-                    [register.contents[index], register.contents[index - 1]] = [register.contents[index - 1], register.contents[index]];
-                    this.saveState();
-                    this.renderContentsList();
-                }
-            },
-
-            moveDown(index) {
-                const register = this.getCurrentRegister();
-                if (index < register.registerCount - 1) {
-                    [register.contents[index], register.contents[index + 1]] = [register.contents[index + 1], register.contents[index]];
-                    this.saveState();
-                    this.renderContentsList();
-                }
-            },
-
-            moveToTop(index) {
-                const register = this.getCurrentRegister();
-                if (index > 0) {
-                    const item = register.contents[index];
-                    register.contents.splice(index, 1);
-                    register.contents.splice(0, 0, item);
-                    this.saveState();
-                    this.renderContentsList();
-                }
-            },
-
-            moveToBottom(index) {
-                const register = this.getCurrentRegister();
-                if (index < register.registerCount - 1) {
-                    const item = register.contents[index];
-                    register.contents.splice(index, 1);
-                    register.contents.splice(register.registerCount - 1, 0, item);
-                    this.saveState();
-                    this.renderContentsList();
-                }
-            },
-
-            // ========================================================================
-            // Quill Editor Management
-            // ========================================================================
-
-            initQuillEditor() {
-                // Using contenteditable instead of Quill.js for offline compatibility
-                const editor = document.getElementById('contentEditor');
-                if (editor) {
-                    editor.addEventListener('keydown', (e) => {
-                        if (e.ctrlKey || e.metaKey) {
-                            if (e.key === 'b') { e.preventDefault(); app.toggleBold(); }
-                            if (e.key === 'i') { e.preventDefault(); app.toggleItalic(); }
-                            if (e.key === 'u') { e.preventDefault(); app.toggleUnderline(); }
-                        }
-                    });
-                }
-            },
-
-            toggleBold() { document.execCommand('bold', false, null); this.focusEditor(); },
-            toggleItalic() { document.execCommand('italic', false, null); this.focusEditor(); },
-            toggleUnderline() { document.execCommand('underline', false, null); this.focusEditor(); },
-            increaseSize() { this._adjustFontSize(+2); this.focusEditor(); },
-            decreaseSize() { this._adjustFontSize(-2); this.focusEditor(); },
-            resetSize()    { this._applyFontSize('14px'); this.focusEditor(); },
-
-            _adjustFontSize(delta) {
-                const sel = window.getSelection();
-                if (!sel || !sel.toString()) return;
-                const range = sel.getRangeAt(0);
-                let container = range.startContainer;
-                if (container.nodeType === 3) container = container.parentElement;
-                const current = parseFloat(window.getComputedStyle(container).fontSize) || 14;
-                const newSize = Math.max(8, Math.min(72, current + delta)) + 'px';
-                this._applyFontSize(newSize);
-            },
-
-            _applyFontSize(size) {
-                const sel = window.getSelection();
-                if (!sel || !sel.toString()) return;
-                const range = sel.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style.fontSize = size;
-                try {
-                    range.surroundContents(span);
-                } catch(e) {
-                    const frag = range.extractContents();
-                    span.appendChild(frag);
-                    range.insertNode(span);
-                }
-                // Innere font-size-Angaben entfernen – nur der äußere Span ist maßgeblich
-                span.querySelectorAll('[style]').forEach(el => {
-                    el.style.removeProperty('font-size');
-                    if (!el.getAttribute('style').trim()) el.removeAttribute('style');
-                });
-                const newRange = document.createRange();
-                newRange.selectNodeContents(span);
-                sel.removeAllRanges();
-                sel.addRange(newRange);
-            },
-            focusEditor() {
-                const editor = document.getElementById('contentEditor');
-                if (editor) editor.focus();
-            },
-
-            // ========================================================================
-            // Edit Modal
-            // ========================================================================
-
-            openEditModal(index) {
-                this.currentEditIndex = index;
-                document.getElementById('modalRegisterIndex').textContent = index + 1;
-
-                const modal = document.getElementById('editModal');
-                modal.classList.remove('hidden');
-
-                // Load content into contentEditable editor
-                const register = this.getCurrentRegister();
-                const editor = document.getElementById('contentEditor');
-                if (editor) {
-                    editor.innerHTML = register.contents[index] || '';
-                    setTimeout(() => editor.focus(), 100);
-                }
-            },
-
-            closeEditModal() {
-                document.getElementById('editModal').classList.add('hidden');
-                this.currentEditIndex = null;
-            },
-
-            saveEditModal() {
-                if (this.currentEditIndex !== null) {
-                    const register = this.getCurrentRegister();
-                    const editor = document.getElementById('contentEditor');
-                    register.contents[this.currentEditIndex] = editor.innerHTML || '';
-                    this.saveState();
-                    this.closeEditModal();
-                    this.renderContentsList();
-                }
+                const [item] = register.contents.splice(from, 1);
+                register.contents.splice(to, 0, item);
+                this.dragIndex = null;
+                this.saveState();
             },
 
             // ========================================================================
@@ -1222,13 +1223,16 @@
                 return { width, height };
             },
 
-            generateSVG() {
+            generateSVG(physical = false) {
                 const register = this.getCurrentRegister();
                 const { width, height } = this.getSVGDimensions();
                 const slotHeight = height / register.registerCount;
                 const dividerX = width * 3 / 10;
+                const sizeStyle = physical
+                    ? `display: block; width: ${width}mm; height: ${height}mm;`
+                    : 'max-width: 100%; max-height: 100%; width: 100%; height: auto;';
 
-                let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%; max-height: 100%; width: 100%; height: auto;">
+                let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" style="${sizeStyle}">
                     <defs>
                         <style>
                             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&family=Roboto+Mono:wght@400&display=swap');
@@ -1259,8 +1263,10 @@
 
                     // Content using foreignObject for rich HTML support
                     svg += `<foreignObject x="${dividerX + 5}" y="${y + 5}" width="${width - dividerX - 10}" height="${slotHeight - 10}">
-                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 12px; line-height: 1.4; overflow: hidden; color: #000;">
-                            ${register.contents[i]}
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="line-height: 1.4; overflow: hidden; color: #000;">
+                            ${this.parseLines(register.contents[i], register.lineCount).map((l, n) =>
+                                `<div style="${this.lineCss(register.lineStyles[n])}">${this.escapeHtml(l.text) || '&#160;'}</div>`
+                            ).join('')}
                         </div>
                     </foreignObject>`;
                 }
@@ -1318,7 +1324,7 @@
             },
 
             downloadSVG() {
-                const svg = this.generateSVG();
+                const svg = this.generateSVG(true);
                 const blob = new Blob([svg], { type: 'image/svg+xml' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -1329,13 +1335,14 @@
             },
 
             printSVG() {
-                const svg = this.generateSVG();
+                const svg = this.generateSVG(true);
+                const { width, height } = this.getSVGDimensions();
                 const iframe = document.createElement('iframe');
                 iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;border:none;';
                 document.body.appendChild(iframe);
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
                 doc.open();
-                doc.write(`<!DOCTYPE html><html><head><title>Ordner Register</title><style>@page{margin:10mm;}body{margin:0;padding:0;}svg{width:100%;height:auto;}</style></head><body>${svg}</body></html>`);
+                doc.write(`<!DOCTYPE html><html><head><title>Ordner Register</title><style>@page{size:${width}mm ${height}mm;margin:0;}body{margin:0;padding:0;}</style></head><body>${svg}</body></html>`);
                 doc.close();
                 iframe.contentWindow.focus();
                 setTimeout(() => {
@@ -1353,6 +1360,8 @@
                 const data = {
                     registerName: register.name,
                     registerCount: register.registerCount,
+                    lineCount: register.lineCount,
+                    lineStyles: register.lineStyles,
                     pageFormat: register.pageFormat,
                     pageOrientation: register.pageOrientation,
                     contents: register.contents.slice(0, register.registerCount),
@@ -1374,7 +1383,7 @@
                 if (!file) return;
 
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                     try {
                         const data = JSON.parse(e.target.result);
 
@@ -1386,7 +1395,13 @@
                         
                         if (existingIndex !== -1) {
                             // Ask user what to do
-                            const choice = confirm(`Ordner "${importName}" existiert bereits.\n\nOK = Überschreiben\nAbbrechen = Neuen Ordner erstellen`);
+                            const choice = await this.showDialog({
+                                title: 'Ordner existiert bereits',
+                                message: `Der Ordner "${importName}" existiert bereits. Soll er überschrieben oder als neuer Ordner importiert werden?`,
+                                okLabel: 'Überschreiben',
+                                cancelLabel: 'Neu erstellen',
+                                danger: false
+                            });
                             
                             if (!choice) {
                                 // Create new register with modified name
@@ -1404,6 +1419,8 @@
                             id: Date.now().toString(),
                             name: importName,
                             registerCount: data.registerCount || 10,
+                            lineCount: data.lineCount || 1,
+                            lineStyles: data.lineStyles,
                             pageFormat: data.pageFormat || 'A4',
                             pageOrientation: data.pageOrientation || 'portrait',
                             contents: data.contents || []
@@ -1426,9 +1443,19 @@
                         this.updateUIFromState();
                         this.renderContentsList();
 
-                        alert(`Ordner "${importName}" erfolgreich importiert!`);
+                        await this.showDialog({
+                            title: 'Import erfolgreich',
+                            message: `Ordner "${importName}" wurde importiert.`,
+                            okLabel: 'OK',
+                            infoOnly: true
+                        });
                     } catch (err) {
-                        alert('Fehler beim Importieren der Datei: ' + err.message);
+                        await this.showDialog({
+                            title: 'Import fehlgeschlagen',
+                            message: 'Fehler beim Importieren der Datei: ' + err.message,
+                            okLabel: 'OK',
+                            infoOnly: true
+                        });
                     }
                 };
                 reader.readAsText(file);
@@ -1443,8 +1470,13 @@
             // Utilities
             // ========================================================================
 
-            resetAll() {
-                if (confirm('Wirklich alle Daten und alle Ordner zurücksetzen?')) {
+            async resetAll() {
+                const confirmed = await this.showDialog({
+                    title: 'Alles zurücksetzen',
+                    message: 'Sollen wirklich alle Daten und alle Ordner zurückgesetzt werden? Das kann nicht rückgängig gemacht werden.',
+                    okLabel: '🔄 Zurücksetzen'
+                });
+                if (confirmed) {
                     this.registers = [];
                     this.currentRegisterIndex = 0;
                     this.createRegister('Standard');
