@@ -44,7 +44,7 @@ A fully **offline-capable**, single-file web app for creating printable folder r
 | Export register | 📤 button |
 | Import register | 📥 button |
 | Delete register | 🗑️ button (not possible when only one register exists) |
-| Reset everything | 💀 Reset button |
+| Reset everything | 💀 Reset button in the ℹ️ About dialog |
 
 ---
 
