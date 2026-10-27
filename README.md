@@ -1,4 +1,4 @@
-# SVG Ordner Register Editor
+# Registerliebe
 
 A fully **offline-capable**, single-file web app for creating printable folder register sheets as SVG — no server, no dependencies, no installation.
 
