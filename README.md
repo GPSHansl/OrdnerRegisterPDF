@@ -2,19 +2,21 @@
 
 A fully **offline-capable**, single-file web app for creating printable folder register sheets as SVG — no server, no dependencies, no installation.
 
-![Screenshot](https://via.placeholder.com/900x500?text=SVG+Ordner+Register+Editor)
+![Screenshot](https://via.placeholder.com/900x500?text=Registerliebe)
 
 ---
 
 ## Features
 
 - **Multiple registers** — manage any number of named folder registers, switch via dropdown
-- **Inline text fields** — each register slot has its own input field on the main screen
+- **Inline text fields** — each register slot has its own input field(s) on the main screen
+- **1–3 lines per register** — per folder; hidden lines keep their text when the line count is reduced
+- **Line styles** — font, size (in pt), bold, italic and underline per line, set once per folder
 - **All common page formats** — A0–A6, Letter, Legal, Tabloid in portrait or landscape
 - **2–31 register slots** per sheet, freely configurable
 - **Live preview sidebar** — SVG preview always visible on the right, updates instantly
-- **Print directly** — prints the SVG without a popup window
-- **Download as SVG** — vector output ready for any PDF printer
+- **Print directly** — prints the SVG in original size (font sizes in pt match the printout)
+- **Download as SVG** — vector output with physical dimensions in mm, ready for any PDF printer
 - **Export / Import JSON** — save individual registers with their name; on import, choose to overwrite or create a new copy
 - **Drag & drop reordering** — reorder register slots by dragging the handle
 - **Persistent state** — all data is saved in `localStorage`; survives page reloads
@@ -36,10 +38,13 @@ A fully **offline-capable**, single-file web app for creating printable folder r
 
 | Action | How |
 |--------|-----|
-| Switch register | Dropdown in the header |
-| Rename | ✏️ button next to dropdown |
+| Switch register | Dropdown in the folder panel |
+| Settings (name, format, lines, line styles) | ⚙️ button |
 | New register | ➕ button |
-| Delete register | 🗑️ button (disabled when only one register exists) |
+| Export register | 📤 button |
+| Import register | 📥 button |
+| Delete register | 🗑️ button (not possible when only one register exists) |
+| Reset everything | 💀 Reset button |
 
 ---
 
@@ -51,16 +56,18 @@ Export saves the **current register** as a `.json` file including its name:
 {
   "registerName": "Kunden",
   "registerCount": 10,
+  "lineCount": 2,
+  "lineStyles": [{ "font": "", "bold": true, "italic": false, "underline": false, "size": 23 }, ...],
   "pageFormat": "A4",
   "pageOrientation": "portrait",
-  "contents": ["<b>Verträge</b>", "<b>Rechnungen</b>", ...],
+  "contents": ["<div>Verträge</div><div>2026</div>", "<div>Rechnungen</div>", ...],
   "exportDate": "2026-07-04T09:41:04.583Z"
 }
 ```
 
 On **import**, if a register with the same name already exists, you choose:
-- **OK** → overwrite existing
-- **Cancel** → create a new copy with suffix *(Import)*
+- **Überschreiben** → replace the existing register
+- **Neu erstellen** → create a new copy with suffix *(Import)*
 
 ---
 
@@ -70,9 +77,12 @@ Open ⚙️ to configure per register:
 
 | Setting | Options |
 |---------|---------|
+| Name | Free text |
 | Format | A0, A1, A2, A3, **A4**, A5, A6, Letter, Legal, Tabloid |
 | Orientation | Portrait, Landscape |
 | Register count | 2 – 31 |
+| Lines per register | 1 – 3 |
+| Line style (per line) | Font, size 6–72 pt, **B**old, *I*talic, <u>U</u>nderline |
 
 ---
 
@@ -91,7 +101,7 @@ Open ⚙️ to configure per register:
 |---|---|
 | Language | Vanilla JavaScript (ES2020) |
 | Styling | Inline CSS with CSS custom properties |
-| Output | Inline SVG with `<foreignObject>` for rich HTML content |
+| Output | Inline SVG (viewBox in mm) with `<foreignObject>` for the text |
 | Storage | `localStorage` (JSON) |
 | Dependencies | **None** |
 | File count | **1** |
